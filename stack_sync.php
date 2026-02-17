@@ -1,0 +1,1 @@
+<?php require __FILE__; startSync();

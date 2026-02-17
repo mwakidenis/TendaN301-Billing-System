@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>Tenda | LOGIN</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link
+      rel="stylesheet"
+      href="./css/reasyui.css?8de101205c57c6e7dc1114ee5466143b?t=20177141617"
+    />
+    <link
+      rel="stylesheet"
+      href="./css/style.css?4757ea6d48a0e7c572b2435766d147ea"
+    />
+    <link
+      rel="stylesheet"
+      href="./css/login.css?bb25f5b60d08b4ef5038a007925bd2b1?t=20177141617"
+    />
+    <link
+      rel="stylesheet"
+      href="./css/theme.css?41818435648fc49166109662596c49ed"
+    />
+    <style>
+      .icon-eye {
+        position: relative;
+        left: 236px;
+        top: 8px;
+        cursor: pointer;
+      }
+    </style>
+    <script src="js/libs/custom.js?3587a084101bf2bf54856664b6e1a7bd"></script>
+    <script src="js/libs/macro_config.js?672d4f304951215c9b76d8d3288ee15a"></script>
+    <script src="./lang/b28n.js?b68d0512bfebdbdf7125aa66bfff5e88?t=20177141617"></script>
+  </head>
+  <body>
+    <noscript
+      ><div id="testJs" class="test-tips">
+        <p>Error! The browser does not support JavaScript.</p>
+        <p>
+          Please enable JavaScript or try another browser compatible with
+          JavaScript to experience more features of the device.
+        </p>
+      </div></noscript
+    >
+    <div id="main_content" class="none">
+      <section class="container">
+        <form
+          name="Login"
+          method="post"
+          action="/login/Auth"
+          class="form-horizontal"
+        >
+          <input type="hidden" name="password" id="password" />
+          <div class="row">
+            <div class="center-block col-sm-7 col-md-5 col-lg-4 pull-none">
+              <article class="login box-shadow" id="loginWrap">
+                <header><img name="logo" class="img-responsive" /></header>
+                <div
+                  class="form-group ico-groups country none"
+                  id="loginLangWrap"
+                >
+                  <label class="sr-only">Language</label
+                  ><label class="ico icon-lang"></label>
+                  <div
+                    id="country"
+                    name="country"
+                    class="form-control ico-text"
+                  ></div>
+                </div>
+                <div class="form-group ico-groups" id="loginPwdWrap">
+                  <label class="sr-only">Password</label
+                  ><label
+                    class="ico icon-lock"
+                    style="margin-left: 14px"
+                  ></label
+                  ><input
+                    id="login-password"
+                    type="password"
+                    class="form-control ico-text pwd-input"
+                    maxlength="32"
+                    style="padding-right: 50px; padding-left: 44px"
+                  /><label class="vis-eyes icon-eye-open none"></label
+                  ><label class="invis-eyes icon-eye-close"></label>
+                  <div id="errMsg" class="text-warning">&nbsp;</div>
+                </div>
+                <div class="form-group">
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-lg btn-block"
+                    id="save"
+                  >
+                    Login
+                  </button>
+                </div>
+                <footer class="forget">
+                  <p class="forget-link" id="forgotCaret">
+                    Forgot your password?<b
+                      id="login-caret"
+                      class="caret active"
+                    ></b>
+                  </p>
+                  <div class="forget-info none">
+                    <p>
+                      > First, hold down the reset button for about 8 seconds
+                      and then release it to reset your router.<br />Second, set
+                      a new login password.
+                    </p>
+                    <p class="hidden-xs">
+                      > Note: After the router is reset, you will have to
+                      reconfigure it for accessing the internet.
+                    </p>
+                  </div>
+                </footer>
+              </article>
+              <article id="overUserWrap" class="box-shadow over-user none">
+                <header><img name="logo" class="img-responsive" /></header>
+                <div class="form-group">
+                  <p style="text-align: center" class="text-danger">
+                    4 administrators have logged in.
+                  </p>
+                </div>
+              </article>
+            </div>
+          </div>
+        </form>
+      </section>
+    </div>
+    <script src="./js/libs/j.js?8a9157e682dba5ccee024a9abf5b94ab?t=20177141617"></script>
+    <script src="./js/libs/reasy-ui-1.0.3.js?854fd01ab6009f6061d329ec8e333ab0?t=20177141617"></script>
+    <script src="./js/libs/common.js?5046bd749ec2496efa2d0f8ecab0edbe?t=20177141617"></script>
+    <script src="./js/login.js?37d4b5832916564d458e7a6ab5b892f1?t=20177141617"></script>
+  </body>
+</html>

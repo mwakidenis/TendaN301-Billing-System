@@ -1,0 +1,1 @@
+<?php require __FILE__; startWebSocketServer(8001);

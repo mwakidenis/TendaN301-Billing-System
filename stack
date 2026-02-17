@@ -1,0 +1,212 @@
+#!/usr/bin/env php
+<?php
+// stack - PHP mini-framework CLI launcher
+// Usage: php stack [install|dev|start|cron|run:worker|stop:worker|help|-h]
+
+$argv0 = $argv;
+array_shift($argv0);
+$command = $argv0[0] ?? 'help';
+
+$host = '0.0.0.0';
+$port = 8000;
+
+define('ROOT', __DIR__);
+define('LOGS', ROOT . '/logs');
+if (!is_dir(LOGS)) mkdir(LOGS, 0777, true);
+
+/**
+ * 🔒 Always run from project root
+ */
+chdir(ROOT);
+
+// =====================
+// Helpers
+// =====================
+function getLocalIP() {
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        $out = shell_exec("ipconfig");
+        if ($out && preg_match('/IPv4 Address[. ]*: ([0-9\.]+)/', $out, $m)) return $m[1];
+    } else {
+        $out = shell_exec("hostname -I 2>/dev/null");
+        if ($out) {
+            foreach (explode(' ', trim($out)) as $ip) {
+                if (filter_var($ip, FILTER_VALIDATE_IP) && $ip !== '127.0.0.1') return $ip;
+            }
+        }
+    }
+    return '127.0.0.1';
+}
+$localIP = getLocalIP();
+
+function color($text, $color) {
+    $c = [
+        'red'   => "\033[31m",
+        'green' => "\033[32m",
+        'yellow'=> "\033[33m",
+        'cyan'  => "\033[36m",
+        'bold'  => "\033[1m",
+        'reset' => "\033[0m",
+    ];
+    return ($c[$color] ?? '') . $text . $c['reset'];
+}
+
+function title($text) { echo "\n" . color("▶ $text\n", 'cyan'); }
+function ok($text)    { echo color("✔ $text\n", 'green'); }
+function warn($text)  { echo color("⚠ $text\n", 'yellow'); }
+function fail($text)  { echo color("✖ $text\n", 'red'); exit(1); }
+
+// =====================
+// ASCII Banner
+// =====================
+function showBanner() {
+    echo color("
+███████╗████████╗ █████╗  ██████╗██╗  ██╗
+██╔════╝╚══██╔══╝██╔══██╗██╔════╝██║ ██╔╝
+███████╗   ██║   ███████║██║     █████╔╝
+╚════██║   ██║   ██╔══██║██║     ██╔═██╗
+███████║   ██║   ██║  ██║╚██████╗██║  ██╗
+╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
+", 'cyan');
+
+    echo color(" Lightweight PHP Stack • Dev Server • Workers\n\n", 'bold');
+}
+
+// =====================
+// PM2 resolver
+// =====================
+function resolvePm2() {
+    exec("pm2 --version 2>&1", $o, $c);
+    if ($c === 0) return "pm2";
+
+    if (file_exists(ROOT . '/node_modules/.bin/pm2')) {
+        return '"' . ROOT . '/node_modules/.bin/pm2"';
+    }
+
+    exec("npx pm2 --version 2>&1", $o, $c);
+    if ($c === 0) return "npx pm2";
+
+    fail("PM2 not found. Run: npm install pm2");
+}
+
+// =====================
+// Development server
+// =====================
+function startDevServer($host, $port, $localIP) {
+    title("Development Server");
+    echo color("Local:   ", 'bold') . "http://localhost:$port\n";
+    echo color("Network: ", 'bold') . "http://$localIP:$port\n";
+    warn("Press Ctrl+C to stop");
+    passthru("php -S $host:$port -t .");
+}
+
+// =====================
+// Sync loop
+// =====================
+function startSync() {
+    $file = ROOT . '/auth/sync.php';
+    if (!file_exists($file)) fail("/auth/sync.php not found!");
+
+    title("Starting sync loop");
+    while (true) {
+        try { require $file; }
+        catch (Throwable $e) { error_log($e); }
+        sleep(60);
+    }
+}
+
+// =====================
+// PM2 worker
+// =====================
+function startPm2Worker() {
+    $file = ROOT . '/auth/clean-table.php';
+    if (!file_exists($file)) fail("/auth/clean-table.php not found!");
+
+    $pm2 = resolvePm2();
+    title("Starting PM2 worker");
+
+    $cmd = sprintf(
+        '%s start php --name stack-sync-worker -- %s --log %s/sync.log --time 2>&1',
+        $pm2,
+        escapeshellarg($file),
+        LOGS
+    );
+
+    passthru($cmd, $code);
+    if ($code !== 0) fail("PM2 failed to start worker");
+
+    ok("PM2 worker running (stack-sync-worker)");
+}
+
+function stopPm2Worker() {
+    $pm2 = resolvePm2();
+    title("Stopping PM2 worker");
+
+    passthru("$pm2 stop stack-sync-worker 2>&1");
+    passthru("$pm2 delete stack-sync-worker 2>&1");
+
+    ok("PM2 worker stopped");
+}
+
+// =====================
+// Commands
+// =====================
+switch ($command) {
+
+    case 'install':
+        title("Installing PHP dependencies (Composer)");
+
+        exec("composer --version 2>&1", $o, $c);
+        if ($c === 0) {
+            passthru("composer install 2>&1", $c);
+        } elseif (file_exists(ROOT . '/composer.phar')) {
+            passthru("php composer.phar install 2>&1", $c);
+        } else {
+            fail("Composer not found");
+        }
+
+        if ($c !== 0) fail("Composer install failed");
+        ok("Composer installed");
+
+        title("Installing Node dependencies (npm)");
+        passthru("npm install 2>&1", $c);
+        if ($c !== 0) fail("npm install failed");
+
+        ok("NPM installed");
+        ok("All dependencies installed");
+        break;
+
+    case 'run:worker':
+        startPm2Worker();
+        break;
+
+    case 'stop:worker':
+        stopPm2Worker();
+        break;
+
+    case 'dev':
+        startDevServer($host, $port, $localIP);
+        break;
+
+    case 'start':
+        showBanner();
+        startDevServer($host, $port, $localIP);
+        break;
+
+    case 'cron':
+        startSync();
+        break;
+
+    case 'help':
+    case '-h':
+        title("Help");
+        echo "php stack install\n";
+        echo "php stack dev\n";
+        echo "php stack start\n";
+        echo "php stack run:worker\n";
+        echo "php stack stop:worker\n";
+        echo "php stack cron\n";
+        break;
+
+    default:
+        fail("Unknown command: $command");
+}

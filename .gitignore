@@ -1,0 +1,18 @@
+# Ignore Composer vendor directory
+/vendor/
+
+# Ignore SQLite database
+/db/routers.db
+
+# Ignore logs
+/logs/
+
+# Ignore Node.js modules
+/node_modules/
+
+# Optional: Ignore common PHP temporary files
+*.log
+*.cache
+*.tmp
+*.swp
+*.bak

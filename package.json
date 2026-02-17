@@ -1,0 +1,8 @@
+{
+  "name": "pm2-only",
+  "version": "1.0.0",
+  "description": "Project with PM2 installed",
+  "devDependencies": {
+    "pm2": "^5.3.0"
+  }
+}
