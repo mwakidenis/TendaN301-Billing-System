@@ -1,4 +1,6 @@
 # Tenda Micro-ISP Router Project
+![IMG-20260217-WA0009](https://github.com/user-attachments/assets/4c1f2d54-41d0-4f8f-824e-c523b84bcfdf)
+
 ## inside the device
 
 ![tenda internals](./tenda-inside.jpg)
